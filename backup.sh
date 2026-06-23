@@ -1,20 +1,47 @@
 #!/bin/bash
 
-SOURCE="./data"
-DEST="./backups"
-LOG="./backup.log"
+echo "Starting backup + git automation..."
 
-mkdir -p "$DEST"
+# 1. Create backup folder
+mkdir -p backups
 
-TIME=$(date +"%Y-%m-%d_%H-%M-%S")
-FILE="$DEST/backup_$TIME.tar.gz"
+# 2. Timestamp
+timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
 
-tar -czf "$FILE" "$SOURCE"
+# 3. Create backup of current state
+tar -czf backups/backup_$timestamp.tar.gz data
 
-if [ $? -eq 0 ]; then
-    echo "$TIME Backup SUCCESS" >> "$LOG"
-     echo "Backup run completed" >> "$LOG"
-    echo "Backup done"
+if [ $? -eq 0 ]
+then
+    echo "$(date): Backup successful - backup_$timestamp.tar.gz" >> backup.log
 else
-    echo "$TIME Backup FAILED" >> "$LOG"
+    echo "$(date): Backup failed" >> backup.log
+    exit 1
 fi
+
+# 4. Git automation
+git add .
+
+# 5. Commit only if there are changes
+if ! git diff --cached --quiet; then
+    git commit -m "Auto backup + commit at $timestamp"
+    git push origin main
+    echo "$(date): Git commit & push successful" >> backup.log
+else
+    echo "$(date): No changes to commit" >> backup.log
+fi
+
+echo "Done."
+
+
+
+
+
+
+
+
+
+
+
+
+
