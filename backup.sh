@@ -35,7 +35,7 @@ then
 
     git add .
 
-    git commit -m "Backup #$count completed at $timestamp"
+    git commit -m "Backup #$count"
 
     git push origin main
 
