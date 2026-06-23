@@ -33,7 +33,7 @@ then
     # 🔥 GIT AUTO COMMIT
     # =========================
 
-    git add data backup.sh backup.log backups
+    git add .
 
     git commit -m "Backup #$count completed at $timestamp"
 
