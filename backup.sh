@@ -8,30 +8,38 @@ mkdir -p backups
 # 2. Timestamp
 timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
 
-# 3. Create backup of current state
-tar -czf backups/backup_$timestamp.tar.gz data
+# 3. Backup number (auto increment)
+count_file="backups/count.txt"
 
+if [ ! -f "$count_file" ]
+then
+    echo 1 > "$count_file"
+fi
+
+count=$(cat "$count_file")
+
+# 4. Create backup
+tar -czf backups/backup_${count}_${timestamp}.tar.gz data
+
+# 5. Check result
 if [ $? -eq 0 ]
 then
-    echo "$(date): Backup successful - backup_$timestamp.tar.gz" >> backup.log
+    echo "$(date): Backup #$count successful - backup_${count}_${timestamp}.tar.gz" >> backup.log
+
+    # increase counter
+    count=$((count + 1))
+    echo $count > "$count_file"
 else
-    echo "$(date): Backup failed" >> backup.log
+    echo "$(date): Backup #$count failed" >> backup.log
     exit 1
 fi
 
-# 4. Git automation
-git add .
 
-# 5. Commit only if there are changes
-if ! git diff --cached --quiet; then
-    git commit -m "Auto backup + commit at $timestamp"
-    git push origin main
-    echo "$(date): Git commit & push successful" >> backup.log
-else
-    echo "$(date): No changes to commit" >> backup.log
-fi
 
-echo "Done."
+
+
+
+
 
 
 
