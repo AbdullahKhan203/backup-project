@@ -29,17 +29,21 @@ then
     # increase counter
     count=$((count + 1))
     echo $count > "$count_file"
+
+    # =========================
+    # 🔥 GIT AUTO PUSH SECTION
+    # =========================
+
+    git add backups backup.log backups/count.txt
+
+    git commit -m "Backup #$count completed at $timestamp"
+
+    git push origin main
+
 else
     echo "$(date): Backup #$count failed" >> backup.log
     exit 1
 fi
-
-
-
-
-
-
-
 
 
 
