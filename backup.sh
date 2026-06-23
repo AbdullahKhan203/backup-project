@@ -8,46 +8,41 @@ mkdir -p backups
 # 2. Timestamp
 timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
 
-# 3. Backup number system
-count_file="backups/count.txt"
+# =========================
+# 🔥 GET BACKUP NUMBER FROM GIT HISTORY
+# =========================
 
-if [ ! -f "$count_file" ]
+last_num=$(git log --oneline | grep "Backup #" | head -1 | grep -o "#[0-9]*" | grep -o "[0-9]*")
+
+if [ -z "$last_num" ]
 then
-    echo 1 > "$count_file"
+    count=1
+else
+    count=$((last_num + 1))
 fi
 
-count=$(cat "$count_file")
-
-# 4. Create backup
+# 3. Create backup
 tar -czf backups/backup_${count}_${timestamp}.tar.gz data
 
-# 5. Check backup success
+# 4. Check result
 if [ $? -eq 0 ]
 then
     echo "$(date): Backup #$count successful - backup_${count}_${timestamp}.tar.gz" >> backup.log
 
-    # increment counter
-    next_count=$((count + 1))
-    echo $next_count > "$count_file"
-
     # =========================
-    # 🔥 GIT AUTO SYNC FIXED
+    # 🔥 GIT AUTO COMMIT
     # =========================
 
-    # Add ONLY important files (ignore rule safe)
-    git add data backup.sh backups/count.txt
+    git add data backup.sh backup.log backups
 
-    # Commit with auto number
     git commit -m "Backup #$count completed at $timestamp"
 
-    # Push to GitHub
     git push origin main
 
 else
     echo "$(date): Backup #$count failed" >> backup.log
     exit 1
 fi
-
 
 
 
