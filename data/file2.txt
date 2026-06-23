@@ -1,1 +1,1 @@
-Learning zsh and bash
+Learning zsh, bash
