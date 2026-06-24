@@ -1,2 +1,2 @@
-Learning zsh, bash updated
+Learning zsh, bash updated both
  
